@@ -7,6 +7,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 # Options
 option(BUILD_VERBOSE "Display additional information while building (e.g download progress, ...)" OFF)
 set(ARCHIVE_DOWNLOAD_DIR "${CMAKE_BINARY_DIR}" CACHE PATH "Directory where to download archives")
+option(USE_PREBUILT_NINJA_BINARY "Whether to use the prebuilt ninja executable file provided by user" OFF)
+set(PREBUILT_NINJA_PATH "/usr/bin/ninja" CACHE PATH "The path of the prebuilt ninja binary")
 
 include(NinjaUrls)
 
@@ -77,6 +79,7 @@ elseif(NOT EXISTS ${Ninja_SOURCE_DIR})
   message(FATAL_ERROR "Ninja_SOURCE_DIR is set to a nonexistent directory")
 endif()
 
+if(NOT USE_PREBUILT_NINJA_BINARY)
 #-----------------------------------------------------------------------------
 # Build from source
 #-----------------------------------------------------------------------------
@@ -154,3 +157,10 @@ endif()
 
 install(FILES ${Ninja_SOURCE_DIR}/misc/ninja_syntax.py DESTINATION src/ninja)
 install(PROGRAMS ${ninja_executable} DESTINATION src/ninja/data/bin)
+else()
+if(NOT EXISTS ${PREBUILT_NINJA_PATH})
+  message(FATAL_ERROR "PREBUILT_NINJA_PATH doesn't exist!")
+endif()
+install(FILES ${Ninja_SOURCE_DIR}/misc/ninja_syntax.py DESTINATION src/ninja)
+install(PROGRAMS ${PREBUILT_NINJA_PATH} DESTINATION src/ninja/data/bin)
+endif()
